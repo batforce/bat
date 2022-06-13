@@ -18,11 +18,11 @@ func FailOnError(err error, msg string) {
 }
 
 func DownloadFile(filepath string, url string) (err error) {
-	log.Printf("Entered DownloadFile")
 	log.Printf("Creating file")
 	// Create the file
 	out, err := os.Create(filepath)
 	if err != nil {
+		log.Println("error here")
 		return err
 	}
 	defer out.Close()

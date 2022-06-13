@@ -63,7 +63,6 @@ func (kit *Buildkit) Release(request WorkRequest) (string, error) {
 
 func (kit *Buildkit) run(scriptPath string, request WorkRequest) (string, error) {
 	kit.Variables = append(kit.Variables, request.Variables...)
-
 	scriptCommand := RunCommand(scriptPath, "app")
 	scriptCommand.Env = append(scriptCommand.Env, os.Environ()...)
 	detectOut, _ := scriptCommand.StdoutPipe()
@@ -78,15 +77,12 @@ func (kit *Buildkit) run(scriptPath string, request WorkRequest) (string, error)
 			stdout := fmt.Sprintf("%s\n", scanner.Text())
 
 			if strings.Contains(stdout, "##[task.setvariable]") {
-				fmt.Printf("Found variable!! %s\n", stdout)
 				_var := strings.Split(strings.Split(stdout, "##[task.setvariable]")[1], "=")
 				kit.Variables = append(kit.Variables, Variable{
 					Value: _var[1],
 					Key:   _var[0],
 					Type:  StringVariable,
 				})
-				fmt.Printf("KEY %s\n", _var[0])
-				fmt.Printf("VALUE %s\n", _var[1])
 			}
 
 			for _, val := range request.Variables {
@@ -96,7 +92,7 @@ func (kit *Buildkit) run(scriptPath string, request WorkRequest) (string, error)
 			}
 
 			sb.WriteString(stdout)
-			fmt.Print(stdout)
+			log.Println(stdout)
 		}
 	}()
 
