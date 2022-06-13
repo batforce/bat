@@ -19,7 +19,7 @@ RUN CGO_ENABLED=0 go build -o /go-app
 ##
 ## Deploy
 ##
-FROM mgoltzsche/podman:rootless
+FROM mgoltzsche/podman:minimal
 
 
 
