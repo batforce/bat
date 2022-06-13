@@ -28,7 +28,7 @@ spec:
         - env:
             - name: BAT_RABBIT_MQ_HOST
               value: rabbitmq
-          image: judedaryl/bat:1.0.8
+          image: judedaryl/bat:1.0.9
           name: bat-worker
           resources: {}
           securityContext:
