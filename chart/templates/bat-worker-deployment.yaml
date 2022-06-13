@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bat-worker
+  name: bat-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: bat-worker
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/batforce: "true"
+        io.kompose.service: bat-worker
+    spec:
+      containers:
+        - env:
+            - name: BAT_RABBIT_MQ_HOST
+              value: rabbitmq
+          image: judedaryl/bat:1.0.8
+          name: bat-worker
+          resources: {}
+          securityContext:
+            privileged: true          
+      restartPolicy: Always
+status: {}

@@ -1,0 +1,11 @@
+REPO=$1
+HASH=$2
+
+echo $REPO
+echo $HASH
+
+git init app
+cd app
+git remote add origin $REPO
+git fetch
+git checkout --force $HASH

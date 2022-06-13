@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.26.1 (a9d05d509)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: docker-registry-viewer
+  name: docker-registry-viewer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: docker-registry-viewer
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -c
+        kompose.version: 1.26.1 (a9d05d509)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/batforce: "true"
+        io.kompose.service: docker-registry-viewer
+    spec:
+      containers:
+        - env:
+            - name: DOCKER_REGISTRY_URL
+              value: http://docker-registry:5006
+            - name: ENABLE_DELETE_IMAGES
+              value: "true"
+            - name: PUBLIC_REGISTRY_URL
+              value: localhost:5006
+          image: klausmeyer/docker-registry-browser
+          name: docker-registry-viewer
+          ports:
+            - containerPort: 8080
+          resources: {}
+      restartPolicy: Always
+status: {}

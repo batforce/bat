@@ -1,0 +1,77 @@
+version: "3"
+
+networks:
+  batforce:
+    driver: bridge
+
+services:
+  docker-registry:
+    image: registry:2.8.1
+    restart: always
+    ports:
+      - "5006:5000"
+    environment:
+      REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY: /data
+    volumes:
+      - batforce-registry:/data      
+    networks:
+      - batforce
+  docker-registry-viewer:
+    image: klausmeyer/docker-registry-browser
+    restart: always
+    environment:
+      - "DOCKER_REGISTRY_URL=http://docker-registry:5000"
+      - "ENABLE_DELETE_IMAGES=true"
+      - "PUBLIC_REGISTRY_URL=localhost:5006"
+    ports:
+      - "5005:8080"
+    networks:
+      - batforce      
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    networks:
+        - batforce
+  localstack:
+    container_name: "localstack"
+    image: localstack/localstack
+    ports:
+      # - "127.0.0.1:53:53"                # only required for Pro (DNS)
+      # - "127.0.0.1:53:53/udp"            # only required for Pro (DNS)
+      # - "127.0.0.1:443:443"              # only required for Pro (LocalStack HTTPS Edge Proxy)
+      - "4510-4559:4510-4559"  # external service port range
+      - "4566:4566"            # LocalStack Edge Proxy
+    environment:
+      - DEBUG=${DEBUG-}
+      - DATA_DIR=${DATA_DIR-}
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-}
+      - LOCALSTACK_API_KEY=${LOCALSTACK_API_KEY-}  # only required for Pro
+      - HOST_TMP_FOLDER=${TMPDIR:-/tmp/}localstack
+      - DOCKER_HOST=unix:///var/run/docker.sock  
+    networks:
+        - batforce      
+
+  bat-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: judedaryl/bat:1.0.2
+    privileged: true
+    depends_on:
+      - rabbitmq
+    environment:
+      BAT_RABBIT_MQ_HOST: rabbitmq
+    restart: always
+    networks:
+      - batforce        
+
+volumes:
+  batforce-registry:
